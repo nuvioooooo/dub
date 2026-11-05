@@ -50,6 +50,19 @@
           "skipIfImdbVerified": true
         },
         {
+          "op": "set",
+          "value": "Türkçe Dublaj",
+          "as": "dilBeklenen"
+        },
+        {
+          "op": "check",
+          "from": "html",
+          "pattern": "turkce-dublaj-filmler-1\">\\s*(Türkçe Dublaj)\\s*</a>",
+          "ignoreCase": true,
+          "expect": "dilBeklenen",
+          "required": true
+        },
+        {
           "op": "regex",
           "from": "html",
           "pattern": "scx\\s*=\\s*(\\{.*?\\})\\s*;",
