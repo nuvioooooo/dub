@@ -16,9 +16,7 @@
       "movie": {
         "stopOnImdbMatch": true,
         "queries": [
-          "{imdb}",
-          "{title} {year}",
-          "{title_tmdb} {year}"
+          "{imdb}"
         ]
       },
       "search": {
