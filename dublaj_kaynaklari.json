@@ -173,7 +173,7 @@
       "id": "dizigom-dizi",
       "enabled": true,
       "audioDelayMs": 0,
-      "label": "Türkçe Dublaj · Dizigo",
+      "label": "Türkçe Dublaj · Dizigom",
       "lang": "tr",
       "base": "https://www.dizigom.news",
       "audioHeaders": {
@@ -323,7 +323,7 @@
       "id": "hdfilmcehennemi",
       "enabled": true,
       "audioDelayMs": 0,
-      "label": "Türkçe Dublaj · FilmC",
+      "label": "Türkçe Dublaj · HDFilmCehennemi",
       "lang": "tr",
       "base": "https://www.hdfilmcehennemi.nl",
       "audioHeaders": {
@@ -426,7 +426,7 @@
       "id": "hdfilmcehennemi-rapidrame",
       "enabled": true,
       "audioDelayMs": 0,
-      "label": "Türkçe Dublaj · FilmC (R)",
+      "label": "Türkçe Dublaj · HDFilmCehennemi (Rapidrame)",
       "lang": "tr",
       "base": "https://www.hdfilmcehennemi.nl",
       "audioHeaders": {
@@ -545,7 +545,7 @@
       "id": "hdfilmcehennemi-dizi",
       "enabled": true,
       "audioDelayMs": 0,
-      "label": "Türkçe Dublaj · FilmC",
+      "label": "Türkçe Dublaj · HDFilmCehennemi",
       "lang": "tr",
       "base": "https://www.hdfilmcehennemi.nl",
       "audioHeaders": {
@@ -553,7 +553,9 @@
         "Referer": "{base}/"
       },
       "series": {
+        "stopOnImdbMatch": true,
         "queries": [
+          "{imdb}",
           "{title}",
           "{title_tmdb}"
         ]
