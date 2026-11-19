@@ -9,6 +9,7 @@
       "label": "Türkçe Dublaj · FullHD",
       "lang": "tr",
       "base": "https://www.fullhdfilmizlesene.now",
+      "domainKey": "FullHDFilmizlesene",
       "audioHeaders": {
         "Origin": "{base}",
         "Referer": "{base}/"
@@ -139,9 +140,10 @@
       "id": "selcukflix",
       "enabled": true,
       "audioDelayMs": 0,
-      "label": "Türkçe Dublaj · FilmS",
+      "label": "Türkçe Dublaj · FimS",
       "lang": "tr",
       "base": "https://selcukflix.app",
+      "domainKey": "SelcukFlixDub",
       "headers": {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0",
         "Accept-Language": "tr-TR,tr;q=0.9"
@@ -277,6 +279,7 @@
       "label": "Türkçe Dublaj · FilmS",
       "lang": "tr",
       "base": "https://selcukflix.app",
+      "domainKey": "SelcukFlixDub",
       "headers": {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0",
         "Accept-Language": "tr-TR,tr;q=0.9"
@@ -409,6 +412,7 @@
       "label": "Türkçe Dublaj · Dizigo",
       "lang": "tr",
       "base": "https://www.dizigom.news",
+      "domainKey": "DiziGomDub",
       "audioHeaders": {
         "Origin": "{base}",
         "Referer": "{base}/"
@@ -423,7 +427,7 @@
         "url": "{base}/ara?q={q}",
         "maxCandidates": 3,
         "pick": [
-          "href=\"(https://www\\.dizigom\\.news/diziler/[^\"/]+/?)\""
+          "href=\"(https://[^\\\"/]+/diziler/[^\"/]+/?)\""
         ]
       },
       "steps": [
@@ -559,6 +563,7 @@
       "label": "Türkçe Dublaj · FilmC",
       "lang": "tr",
       "base": "https://www.hdfilmcehennemi.nl",
+      "domainKey": "HDFilmCehennemi",
       "audioHeaders": {
         "Origin": "{base}",
         "Referer": "{base}/"
@@ -575,7 +580,7 @@
         "url": "{base}/search?q={q}",
         "maxCandidates": 3,
         "pick": [
-          "href=\\\\\"https:\\\\/\\\\/www\\.hdfilmcehennemi\\.[a-z]+\\\\/([^\"\\\\]+)\\\\/\\\\\""
+          "href=\\\\\"https:\\\\/\\\\/(?:www\\.)?hdfilmcehennemi\\.[a-z]+\\\\/([^\"\\\\]+)\\\\/\\\\\""
         ]
       },
       "steps": [
@@ -662,6 +667,7 @@
       "label": "Türkçe Dublaj · FilmC (R)",
       "lang": "tr",
       "base": "https://www.hdfilmcehennemi.nl",
+      "domainKey": "HDFilmCehennemi",
       "audioHeaders": {
         "Origin": "{base}",
         "Referer": "{base}/"
@@ -678,7 +684,7 @@
         "url": "{base}/search?q={q}",
         "maxCandidates": 3,
         "pick": [
-          "href=\\\\\"https:\\\\/\\\\/www\\.hdfilmcehennemi\\.nl\\\\/([^\"\\\\]+)\\\\/\\\\\""
+          "href=\\\\\"https:\\\\/\\\\/(?:www\\.)?hdfilmcehennemi\\.[a-z]+\\\\/([^\"\\\\]+)\\\\/\\\\\""
         ]
       },
       "steps": [
@@ -781,6 +787,7 @@
       "label": "Türkçe Dublaj · FilmC",
       "lang": "tr",
       "base": "https://www.hdfilmcehennemi.nl",
+      "domainKey": "HDFilmCehennemi",
       "audioHeaders": {
         "Origin": "{base}",
         "Referer": "{base}/"
@@ -797,7 +804,7 @@
         "url": "{base}/search?q={q}",
         "maxCandidates": 3,
         "pick": [
-          "href=\\\\\"https:\\\\/\\\\/www\\.hdfilmcehennemi\\.[a-z]+\\\\/(dizi\\\\/[^\"\\\\]+)\\\\/\\\\\""
+          "href=\\\\\"https:\\\\/\\\\/(?:www\\.)?hdfilmcehennemi\\.[a-z]+\\\\/(dizi\\\\/[^\"\\\\]+)\\\\/\\\\\""
         ]
       },
       "steps": [
@@ -898,6 +905,239 @@
       "headers": {
         "X-Requested-With": "fetch"
       }
+    },
+    {
+      "id": "dizipal",
+      "enabled": true,
+      "audioDelayMs": 0,
+      "label": "Türkçe Dublaj · DiziPal",
+      "lang": "tr",
+      "base": "https://dizipal1596.com",
+      "domainKey": "DiziPalOrijinal",
+      "headers": {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0",
+        "Accept-Language": "tr-TR,tr;q=0.9"
+      },
+      "audioHeaders": {
+        "Origin": "{playerOrigin}",
+        "Referer": "{playerUrl}",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0"
+      },
+      "movie": {
+        "stopOnImdbMatch": true,
+        "queries": [
+          "{title} {year}",
+          "{title_tmdb} {year}",
+          "{title}"
+        ]
+      },
+      "search": {
+        "url": "POST {base}/api/mj {\"action\":\"searchContent\",\"params\":[\"{q}\"]}",
+        "maxCandidates": 3,
+        "pick": [
+          "\"used_slug\"\\s*:\\s*\"(?:\\\\?/)?(movies\\\\?/[^\"\\\\/?#]+)\""
+        ]
+      },
+      "steps": [
+        {
+          "op": "http_get",
+          "url": "{page}",
+          "referer": "{base}/",
+          "as": "html"
+        },
+        {
+          "op": "check",
+          "from": "html",
+          "pattern": "(?:imdb\\.com/title/|imdb_?id[\\\"']?\\s*[:=]\\s*[\\\"']?)(tt\\d+)",
+          "ignoreCase": true,
+          "expect": "imdb"
+        },
+        {
+          "op": "check",
+          "from": "html",
+          "pattern": "\\\\?\"datePublished\\\\?\"\\s*:\\s*\\\\?\"(\\d{4})",
+          "expect": "year",
+          "tolerance": 1,
+          "required": true,
+          "skipIfImdbVerified": true
+        },
+        {
+          "op": "rsc_enc_decrypt",
+          "from": "html",
+          "as": "playerUrl"
+        },
+        {
+          "op": "regex",
+          "from": "playerUrl",
+          "pattern": "^(https://[^/]+)",
+          "group": 1,
+          "as": "playerOrigin"
+        },
+        {
+          "op": "http_get",
+          "url": "{playerUrl}",
+          "referer": "{page}",
+          "as": "playerHtml"
+        },
+        {
+          "op": "js_object",
+          "from": "playerHtml",
+          "after": "window.NP_CONFIG",
+          "as": "npConfig"
+        },
+        {
+          "op": "regex",
+          "from": "npConfig",
+          "group": 1,
+          "as": "master",
+          "patterns": [
+            "\"kind\"\\s*:\\s*\"dub\"\\s*,\\s*\"master\"\\s*:\\s*\"([^\"]+)\"",
+            "\"master\"\\s*:\\s*\"([^\"]+)\""
+          ]
+        },
+        {
+          "op": "pichive_sign",
+          "from": "master",
+          "html": "playerHtml",
+          "as": "audioUrl"
+        },
+        {
+          "op": "hls_audio",
+          "from": "audioUrl",
+          "lang": "tr",
+          "as": "audioFinal"
+        }
+      ],
+      "result": "audioFinal"
+    },
+    {
+      "id": "dizipal-dizi",
+      "enabled": true,
+      "audioDelayMs": 0,
+      "label": "Türkçe Dublaj · DiziPal",
+      "lang": "tr",
+      "base": "https://dizipal1596.com",
+      "domainKey": "DiziPalOrijinal",
+      "headers": {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0",
+        "Accept-Language": "tr-TR,tr;q=0.9"
+      },
+      "audioHeaders": {
+        "Origin": "{playerOrigin}",
+        "Referer": "{playerUrl}",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0"
+      },
+      "series": {
+        "stopOnImdbMatch": true,
+        "queries": [
+          "{title}",
+          "{title_tmdb}"
+        ]
+      },
+      "search": {
+        "url": "POST {base}/api/mj {\"action\":\"searchContent\",\"params\":[\"{q}\"]}",
+        "maxCandidates": 3,
+        "pick": [
+          "\"used_slug\"\\s*:\\s*\"(?:\\\\?/)?(series\\\\?/[^\"\\\\/?#]+)\""
+        ]
+      },
+      "steps": [
+        {
+          "op": "http_get",
+          "url": "{page}",
+          "referer": "{base}/",
+          "as": "seriesHtml"
+        },
+        {
+          "op": "check",
+          "from": "seriesHtml",
+          "pattern": "(?:imdb\\.com/title/|imdb_?id[\\\"']?\\s*[:=]\\s*[\\\"']?)(tt\\d+)",
+          "ignoreCase": true,
+          "expect": "imdb"
+        },
+        {
+          "op": "regex",
+          "from": "seriesHtml",
+          "group": 1,
+          "as": "episodePath",
+          "patterns": [
+            "(/bolum/[^\"?#\\\\\\s/]*-{season}x{episode})(?=[\\\\\"?#])"
+          ]
+        },
+        {
+          "op": "regex",
+          "from": "seriesHtml",
+          "dotAll": false,
+          "group": 0,
+          "as": "dubVar",
+          "pattern": "\\\\\"href\\\\\":\\\\\"{episodePath}\\\\\"[^}]*?\\\\\"dub\\\\\":true"
+        },
+        {
+          "op": "replace",
+          "from": "episodePath",
+          "pattern": "\\\\/",
+          "with": "/",
+          "as": "episodePath"
+        },
+        {
+          "op": "set",
+          "value": "{base}{episodePath}",
+          "as": "episodeUrl"
+        },
+        {
+          "op": "http_get",
+          "url": "{episodeUrl}",
+          "referer": "{page}",
+          "as": "html"
+        },
+        {
+          "op": "rsc_enc_decrypt",
+          "from": "html",
+          "as": "playerUrl"
+        },
+        {
+          "op": "regex",
+          "from": "playerUrl",
+          "pattern": "^(https://[^/]+)",
+          "group": 1,
+          "as": "playerOrigin"
+        },
+        {
+          "op": "http_get",
+          "url": "{playerUrl}",
+          "referer": "{episodeUrl}",
+          "as": "playerHtml"
+        },
+        {
+          "op": "js_object",
+          "from": "playerHtml",
+          "after": "window.NP_CONFIG",
+          "as": "npConfig"
+        },
+        {
+          "op": "regex",
+          "from": "npConfig",
+          "group": 1,
+          "as": "master",
+          "patterns": [
+            "\"kind\"\\s*:\\s*\"dub\"\\s*,\\s*\"master\"\\s*:\\s*\"([^\"]+)\"",
+            "\"master\"\\s*:\\s*\"([^\"]+)\""
+          ]
+        },
+        {
+          "op": "pichive_sign",
+          "from": "master",
+          "html": "playerHtml",
+          "as": "audioUrl"
+        },
+        {
+          "op": "hls_audio",
+          "from": "audioUrl",
+          "lang": "tr",
+          "as": "audioFinal"
+        }
+      ],
+      "result": "audioFinal"
     }
   ]
 }
