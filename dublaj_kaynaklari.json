@@ -140,7 +140,7 @@
       "id": "selcukflix",
       "enabled": true,
       "audioDelayMs": 0,
-      "label": "Türkçe Dublaj · FilmS",
+      "label": "Türkçe Dublaj · FimS",
       "lang": "tr",
       "base": "https://selcukflix.app",
       "domainKey": "SelcukFlixDub",
@@ -407,7 +407,7 @@
     },
     {
       "id": "dizigom-dizi",
-      "enabled": false,
+      "enabled": true,
       "audioDelayMs": 0,
       "label": "Türkçe Dublaj · Dizigo",
       "lang": "tr",
@@ -910,7 +910,7 @@
       "id": "dizipal",
       "enabled": true,
       "audioDelayMs": 0,
-      "label": "Türkçe Dublaj · FilmP",
+      "label": "Türkçe Dublaj · DiziPal",
       "lang": "tr",
       "base": "https://dizipal1596.com",
       "domainKey": "DiziPalOrijinal",
@@ -1014,7 +1014,7 @@
       "id": "dizipal-dizi",
       "enabled": true,
       "audioDelayMs": 0,
-      "label": "Türkçe Dublaj · FilmP",
+      "label": "Türkçe Dublaj · DiziPal",
       "lang": "tr",
       "base": "https://dizipal1596.com",
       "domainKey": "DiziPalOrijinal",
@@ -1061,7 +1061,7 @@
           "group": 1,
           "as": "episodePath",
           "patterns": [
-            "(/bolum/[^\"?#\\\\\\s/]*-{season}x{episode})(?=[\\\\\"?#])"
+            "(/bolum/[^\"?#\\\\\\s/]*-{season}x{episode}(?:-c\\d+)?)(?=[\\\\\"?#])"
           ]
         },
         {
