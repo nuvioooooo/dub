@@ -1,6 +1,6 @@
 |Turkanime:https://www.turkanime.tv
 |FullHDFilmizlesene:https://www.fullhdfilmizlesene.now
-|FilmMakinesi:https://filmmakinesi.to
+|FilmMakinesi:https://filmmakinesi.co
 |Dizilla:https://dizilla.la
 |DiziGom:https://www.alliance4creativity.com
 |FilmModu:https://www.filmmodu.one
@@ -17,7 +17,6 @@
 |Jetfilmizle:https://jetfilmizle.app
 |DiziBox:https://www.dizibox.live
 |Anizium:https://anizium.co
-|Sinefy:http://ww19.sinefy3.com
 |Dizist:https://dizist.live
 |DiziYo:https://diziyo.sh
 |FilmEkseni:https://filmekseni.vip
@@ -69,7 +68,6 @@
 |VegaMovies:https://1vegamovies.shop
 |MoviesMod:https://moviesmod.kids
 |4kHdHub:https://4khdhub.one
-|HDHUB4u:https://new14.hdhub4u.cl
 |FlixHQ:https://flixhq.to
 |SeiCode:https://seicode.net
 |SelcukFlix:https://selcukflix.co
