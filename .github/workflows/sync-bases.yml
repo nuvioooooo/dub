@@ -36,7 +36,7 @@ jobs:
         run: |
           git config user.name 'Domain Kontrol Botu'
           git config user.email 'bot@github-actions'
-          git add dublaj_kaynaklari.json
+          git add dublaj_kaynaklari.json eklenti_domainleri.txt
           if git diff --staged --quiet; then echo "Değişiklik yok"; exit 0; fi
           git commit -m "🔄 base adresleri güncellendi - $(date +'%Y-%m-%d %H:%M')"
           for i in 1 2 3; do
