@@ -5,6 +5,8 @@ Her siteyi domain_guncelle.py ile kontrol eder (yönlendirmeleri takip eder, ta�
 park/reklam sayfalarını ve kara listeyi reddeder), sonucu JSON'daki "base" alanlarına yazar.
 Aynı siteyi kullanan provider'lar "domainKey" ile gruplanır (yoksa provider id'si kullanılır).
 Site kontrol edilemezse eski adres korunur.
+JSON kaynak kabul edilir: sonuçlar eklenti_domainleri.txt dosyasına da yansıtılır
+(txt'de olmayan site eklenir; diğer satırlara ve yorumlara dokunulmaz).
 
 Kullanım:  python3 scripts/sync_bases.py [--dry-run]
 """
@@ -13,6 +15,13 @@ import json, os, re, sys, tempfile
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 CONFIG = os.environ.get("CONFIG_PATH", os.path.join(ROOT, "dublaj_kaynaklari.json"))
+TXT = os.environ.get("TXT_PATH", os.path.join(ROOT, "eklenti_domainleri.txt"))
+
+# JSON'daki domainKey, txt'de farklı adla duruyorsa burada eşleştirilir.
+TXT_ALIASES = {
+    "SelcukFlixDub": "SelcukFlix",
+    "DiziGomDub": "DiziGom",
+}
 
 
 def group_key(p):
@@ -40,6 +49,37 @@ def apply_list(cfg, list_text):
     return changed
 
 
+def sync_txt(groups, dry):
+    """JSON'daki güncel adresleri eklenti_domainleri.txt'ye yazar. Değişen/eklenen sayısını döndürür."""
+    from domain_guncelle import LINE_RE
+    if not os.path.exists(TXT):
+        print(f"UYARI: {TXT} yok, txt senkronu atlandı"); return 0
+    raw = open(TXT, encoding="utf-8-sig", newline="").read()
+    lines = raw.splitlines(keepends=True)
+    eol = "\r\n" if "\r\n" in raw else "\n"
+    index = {}
+    for i, ln in enumerate(lines):
+        m = LINE_RE.match(ln.rstrip("\r\n"))
+        if m: index.setdefault(m.group("name").strip(), (i, m))
+    count = 0
+    for key, url in groups.items():
+        name = TXT_ALIASES.get(key, key)
+        if name in index:
+            i, m = index[name]
+            if m.group("url").rstrip("/") == url: continue
+            end = lines[i][len(lines[i].rstrip("\r\n")):]
+            lines[i] = f"{m.group('pre')}{m.group('name')}{m.group('sep')}{url}{m.group('rest')}{end}"
+            print(f"  txt {name}: {m.group('url')} -> {url}")
+        else:
+            if lines and not lines[-1].endswith(("\n", "\r")): lines[-1] += eol
+            lines.append(f"|{name}:{url}{eol}")
+            print(f"  txt {name}: eklendi -> {url}")
+        count += 1
+    if count and not dry:
+        with open(TXT, "w", encoding="utf-8", newline="") as f: f.write("".join(lines))
+    return count
+
+
 def main():
     dry = "--dry-run" in sys.argv
     cfg = json.load(open(CONFIG, encoding="utf-8"))
@@ -59,12 +99,22 @@ def main():
 
     changed = apply_list(cfg, open(listfile, encoding="utf-8").read())
     for pid, old, new in changed: print(f"  {pid}: {old} -> {new}")
-    if not changed: print("base değişikliği yok"); return
-    if dry: print(f"{len(changed)} değişiklik (dry-run, yazılmadı)"); return
-    with open(CONFIG, "w", encoding="utf-8", newline="\n") as f:
-        json.dump(cfg, f, ensure_ascii=False, indent=2); f.write("\n")
-    json.load(open(CONFIG, encoding="utf-8"))
-    print(f"{len(changed)} provider güncellendi")
+
+    if changed and not dry:
+        with open(CONFIG, "w", encoding="utf-8", newline="\n") as f:
+            json.dump(cfg, f, ensure_ascii=False, indent=2); f.write("\n")
+        json.load(open(CONFIG, encoding="utf-8"))
+        print(f"{len(changed)} provider güncellendi")
+    elif changed:
+        print(f"{len(changed)} değişiklik (dry-run, yazılmadı)")
+    else:
+        print("base değişikliği yok")
+
+    # JSON (güncel hali) -> txt. JSON değişmese bile txt'deki eski değerleri düzeltir.
+    final, _ = build_list(cfg)
+    final = {k: v.rstrip("/") for k, v in final.items()}
+    n = sync_txt(final, dry)
+    print(f"txt: {n} satır {'(dry-run, yazılmadı)' if dry and n else 'güncellendi' if n else 'zaten güncel'}")
 
 
 if __name__ == "__main__":
