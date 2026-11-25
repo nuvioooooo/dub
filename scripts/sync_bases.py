@@ -6,7 +6,7 @@ park/reklam sayfalarını ve kara listeyi reddeder), sonucu JSON'daki "base" ala
 Aynı siteyi kullanan provider'lar "domainKey" ile gruplanır (yoksa provider id'si kullanılır).
 Site kontrol edilemezse eski adres korunur.
 JSON kaynak kabul edilir: sonuçlar eklenti_domainleri.txt dosyasına da yansıtılır
-(txt'de olmayan site eklenir; diğer satırlara ve yorumlara dokunulmaz).
+(txt'de olmayan site eklenir, JSON'da olmayan site satırı silinir; yorum ve boş satırlara dokunulmaz).
 
 Kullanım:  python3 scripts/sync_bases.py [--dry-run]
 """
@@ -57,11 +57,19 @@ def sync_txt(groups, dry):
     raw = open(TXT, encoding="utf-8-sig", newline="").read()
     lines = raw.splitlines(keepends=True)
     eol = "\r\n" if "\r\n" in raw else "\n"
+    wanted = {TXT_ALIASES.get(k, k) for k in groups}
+    count, kept = 0, []
+    for ln in lines:
+        m = LINE_RE.match(ln.rstrip("\r\n"))
+        if m and m.group("name").strip() not in wanted:
+            print(f"  txt {m.group('name').strip()}: silindi (JSON'da yok)"); count += 1
+        else:
+            kept.append(ln)
+    lines = kept
     index = {}
     for i, ln in enumerate(lines):
         m = LINE_RE.match(ln.rstrip("\r\n"))
         if m: index.setdefault(m.group("name").strip(), (i, m))
-    count = 0
     for key, url in groups.items():
         name = TXT_ALIASES.get(key, key)
         if name in index:
