@@ -558,7 +558,7 @@
     },
     {
       "id": "hdfilmcehennemi",
-      "enabled": true,
+      "enabled": false,
       "audioDelayMs": 0,
       "label": "Türkçe Dublaj · FilmC",
       "lang": "tr",
@@ -662,7 +662,7 @@
     },
     {
       "id": "hdfilmcehennemi-rapidrame",
-      "enabled": true,
+      "enabled": false,
       "audioDelayMs": 0,
       "label": "Türkçe Dublaj · FilmC (R)",
       "lang": "tr",
@@ -782,7 +782,7 @@
     },
     {
       "id": "hdfilmcehennemi-dizi",
-      "enabled": true,
+      "enabled": false,
       "audioDelayMs": 0,
       "label": "Türkçe Dublaj · FilmC",
       "lang": "tr",
@@ -1138,6 +1138,683 @@
         }
       ],
       "result": "audioFinal"
+    },
+    {
+      "id": "setfilmizle",
+      "enabled": true,
+      "audioDelayMs": 0,
+      "label": "Türkçe Dublaj · SetFilm",
+      "lang": "tr",
+      "base": "https://www.setfilmizle.ltd",
+      "domainKey": "SetFilmIzle",
+      "headers": {
+        "Accept-Language": "tr-TR,tr;q=0.9"
+      },
+      "audioHeaders": {
+        "Origin": "{playerOrigin}",
+        "Referer": "{playerUrl}",
+        "User-Agent": "Mozilla/5.0 (Linux; Android 13; SM-G991B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Mobile Safari/537.36",
+        "Accept": "*/*"
+      },
+      "movie": {
+        "stopOnImdbMatch": true,
+        "queries": [
+          "{title}",
+          "{title_tmdb}"
+        ]
+      },
+      "search": {
+        "url": "{base}/?s={q}",
+        "maxCandidates": 3,
+        "pick": [
+          "<a[^>]*\\bclass=\\\"[^\\\"]*card-link[^\\\"]*\\\"[^>]*\\bhref=\\\"([^\\\"]*/film/[^\\\"]+)\\\"",
+          "<a[^>]*\\bhref=\\\"([^\\\"]*/film/[^\\\"]+)\\\"[^>]*\\bclass=\\\"[^\\\"]*card-link"
+        ]
+      },
+      "steps": [
+        {
+          "op": "set",
+          "value": "{page}",
+          "as": "epPage"
+        },
+        {
+          "op": "http_get",
+          "url": "{epPage}",
+          "referer": "{base}/",
+          "as": "html"
+        },
+        {
+          "op": "check",
+          "from": "html",
+          "pattern": "(?:imdb\\.com/title/|imdb_?id[\\\"']?\\s*[:=]\\s*[\\\"']?)(tt\\d+)",
+          "ignoreCase": true,
+          "expect": "imdb"
+        },
+        {
+          "op": "check",
+          "from": "html",
+          "pattern": "<title>[^<]*\\((\\d{4})\\)",
+          "expect": "year",
+          "tolerance": 1,
+          "skipIfImdbVerified": true
+        },
+        {
+          "op": "regex",
+          "from": "html",
+          "pattern": "id=\\\"stfPlayer\\\"\\s+data-post-id=\\\"(\\d+)\\\"",
+          "group": 1,
+          "as": "postId"
+        },
+        {
+          "op": "regex",
+          "from": "html",
+          "pattern": "video:\\s*\\\"([^\\\"]+)\\\"",
+          "group": 1,
+          "as": "nonce"
+        },
+        {
+          "op": "regex",
+          "from": "html",
+          "pattern": "data-player-name=\\\"([^\\\"]*)\\\"\\s+data-part-key=\\\"([^\\\"]*)\\\"",
+          "group": 1,
+          "as": "playerName"
+        },
+        {
+          "op": "regex",
+          "from": "html",
+          "pattern": "data-player-name=\\\"([^\\\"]*)\\\"\\s+data-part-key=\\\"([^\\\"]*)\\\"",
+          "group": 2,
+          "as": "partKey"
+        },
+        {
+          "op": "http_post",
+          "url": "{base}/wp-admin/admin-ajax.php",
+          "referer": "{epPage}",
+          "headers": {
+            "X-Requested-With": "XMLHttpRequest"
+          },
+          "form": {
+            "action": "get_video_url",
+            "nonce": "{nonce}",
+            "post_id": "{postId}",
+            "player_name": "{playerName}",
+            "part_key": "{partKey}",
+            "taze": "1"
+          },
+          "as": "ajax"
+        },
+        {
+          "op": "json_path",
+          "from": "ajax",
+          "path": "data.stream.url",
+          "as": "bridgeUrl"
+        },
+        {
+          "op": "http_get",
+          "url": "{bridgeUrl}",
+          "referer": "{epPage}",
+          "as": "bridgeHtml"
+        },
+        {
+          "op": "regex",
+          "from": "bridgeHtml",
+          "pattern": "cerceve\\(\\s*\\\"b2\\\"\\s*,\\s*\\\"([^\\\"]+)\\\"\\s*,\\s*\\\"([^\\\"]+)\\\"\\s*\\)",
+          "group": 1,
+          "as": "xorA"
+        },
+        {
+          "op": "regex",
+          "from": "bridgeHtml",
+          "pattern": "cerceve\\(\\s*\\\"b2\\\"\\s*,\\s*\\\"([^\\\"]+)\\\"\\s*,\\s*\\\"([^\\\"]+)\\\"\\s*\\)",
+          "group": 2,
+          "as": "xorB"
+        },
+        {
+          "op": "xor_b64",
+          "a": "{xorA}",
+          "b": "{xorB}"
+        },
+        {
+          "op": "regex",
+          "from": "cur",
+          "pattern": "(?:^|\\|)(https?://[^|\\s]+)",
+          "group": 1,
+          "as": "playerUrl"
+        },
+        {
+          "op": "regex",
+          "from": "playerUrl",
+          "pattern": "^(https?://[^/]+)",
+          "group": 1,
+          "as": "playerOrigin"
+        },
+        {
+          "op": "http_get",
+          "url": "{playerUrl}",
+          "referer": "https://setplay.sbs/",
+          "as": "playerHtml"
+        },
+        {
+          "op": "regex",
+          "from": "playerHtml",
+          "pattern": "src:\\s*\\\"([^\\\"]+)\\\"",
+          "group": 1,
+          "as": "srcRaw"
+        },
+        {
+          "op": "replace",
+          "from": "srcRaw",
+          "pattern": "\\\\/",
+          "with": "/",
+          "as": "srcPath"
+        },
+        {
+          "op": "set",
+          "value": "{playerOrigin}{srcPath}",
+          "as": "audioUrl"
+        },
+        {
+          "op": "hls_audio",
+          "from": "audioUrl",
+          "lang": "tr",
+          "as": "audioFinal"
+        }
+      ],
+      "result": "audioFinal"
+    },
+    {
+      "id": "setfilmizle-dizi",
+      "enabled": true,
+      "audioDelayMs": 0,
+      "label": "Türkçe Dublaj · SetFilm",
+      "lang": "tr",
+      "base": "https://www.setfilmizle.ltd",
+      "domainKey": "SetFilmIzle",
+      "headers": {
+        "Accept-Language": "tr-TR,tr;q=0.9"
+      },
+      "audioHeaders": {
+        "Origin": "{playerOrigin}",
+        "Referer": "{playerUrl}",
+        "User-Agent": "Mozilla/5.0 (Linux; Android 13; SM-G991B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Mobile Safari/537.36",
+        "Accept": "*/*"
+      },
+      "series": {
+        "stopOnImdbMatch": true,
+        "queries": [
+          "{title}",
+          "{title_tmdb}"
+        ]
+      },
+      "search": {
+        "url": "{base}/?s={q}",
+        "maxCandidates": 3,
+        "pick": [
+          "<a[^>]*\\bclass=\\\"[^\\\"]*card-link[^\\\"]*\\\"[^>]*\\bhref=\\\"([^\\\"]*/dizi/[^\\\"]+)\\\"",
+          "<a[^>]*\\bhref=\\\"([^\\\"]*/dizi/[^\\\"]+)\\\"[^>]*\\bclass=\\\"[^\\\"]*card-link"
+        ]
+      },
+      "steps": [
+        {
+          "op": "set",
+          "value": "{page}",
+          "as": "seriesUrl"
+        },
+        {
+          "op": "http_get",
+          "url": "{seriesUrl}",
+          "referer": "{base}/",
+          "as": "seriesHtml"
+        },
+        {
+          "op": "check",
+          "from": "seriesHtml",
+          "pattern": "(?:imdb\\.com/title/|imdb_?id[\\\"']?\\s*[:=]\\s*[\\\"']?)(tt\\d+)",
+          "ignoreCase": true,
+          "expect": "imdb"
+        },
+        {
+          "op": "regex",
+          "from": "seriesHtml",
+          "pattern": "href=\\\"(?:https?://[^\\\"/]+)?(/bolum/[^\\\"]*?-{season}-sezon-{episode}-bolum/?)\\\"",
+          "group": 1,
+          "as": "epPath"
+        },
+        {
+          "op": "set",
+          "value": "{base}{epPath}",
+          "as": "epPage"
+        },
+        {
+          "op": "http_get",
+          "url": "{epPage}",
+          "referer": "{base}/",
+          "as": "html"
+        },
+        {
+          "op": "check",
+          "from": "html",
+          "pattern": "(?:imdb\\.com/title/|imdb_?id[\\\"']?\\s*[:=]\\s*[\\\"']?)(tt\\d+)",
+          "ignoreCase": true,
+          "expect": "imdb"
+        },
+        {
+          "op": "regex",
+          "from": "html",
+          "pattern": "id=\\\"stfPlayer\\\"\\s+data-post-id=\\\"(\\d+)\\\"",
+          "group": 1,
+          "as": "postId"
+        },
+        {
+          "op": "regex",
+          "from": "html",
+          "pattern": "video:\\s*\\\"([^\\\"]+)\\\"",
+          "group": 1,
+          "as": "nonce"
+        },
+        {
+          "op": "regex",
+          "from": "html",
+          "pattern": "data-player-name=\\\"([^\\\"]*)\\\"\\s+data-part-key=\\\"([^\\\"]*)\\\"",
+          "group": 1,
+          "as": "playerName"
+        },
+        {
+          "op": "regex",
+          "from": "html",
+          "pattern": "data-player-name=\\\"([^\\\"]*)\\\"\\s+data-part-key=\\\"([^\\\"]*)\\\"",
+          "group": 2,
+          "as": "partKey"
+        },
+        {
+          "op": "http_post",
+          "url": "{base}/wp-admin/admin-ajax.php",
+          "referer": "{epPage}",
+          "headers": {
+            "X-Requested-With": "XMLHttpRequest"
+          },
+          "form": {
+            "action": "get_video_url",
+            "nonce": "{nonce}",
+            "post_id": "{postId}",
+            "player_name": "{playerName}",
+            "part_key": "{partKey}",
+            "taze": "1"
+          },
+          "as": "ajax"
+        },
+        {
+          "op": "json_path",
+          "from": "ajax",
+          "path": "data.stream.url",
+          "as": "bridgeUrl"
+        },
+        {
+          "op": "http_get",
+          "url": "{bridgeUrl}",
+          "referer": "{epPage}",
+          "as": "bridgeHtml"
+        },
+        {
+          "op": "regex",
+          "from": "bridgeHtml",
+          "pattern": "cerceve\\(\\s*\\\"b2\\\"\\s*,\\s*\\\"([^\\\"]+)\\\"\\s*,\\s*\\\"([^\\\"]+)\\\"\\s*\\)",
+          "group": 1,
+          "as": "xorA"
+        },
+        {
+          "op": "regex",
+          "from": "bridgeHtml",
+          "pattern": "cerceve\\(\\s*\\\"b2\\\"\\s*,\\s*\\\"([^\\\"]+)\\\"\\s*,\\s*\\\"([^\\\"]+)\\\"\\s*\\)",
+          "group": 2,
+          "as": "xorB"
+        },
+        {
+          "op": "xor_b64",
+          "a": "{xorA}",
+          "b": "{xorB}"
+        },
+        {
+          "op": "regex",
+          "from": "cur",
+          "pattern": "(?:^|\\|)(https?://[^|\\s]+)",
+          "group": 1,
+          "as": "playerUrl"
+        },
+        {
+          "op": "regex",
+          "from": "playerUrl",
+          "pattern": "^(https?://[^/]+)",
+          "group": 1,
+          "as": "playerOrigin"
+        },
+        {
+          "op": "http_get",
+          "url": "{playerUrl}",
+          "referer": "https://setplay.sbs/",
+          "as": "playerHtml"
+        },
+        {
+          "op": "regex",
+          "from": "playerHtml",
+          "pattern": "src:\\s*\\\"([^\\\"]+)\\\"",
+          "group": 1,
+          "as": "srcRaw"
+        },
+        {
+          "op": "replace",
+          "from": "srcRaw",
+          "pattern": "\\\\/",
+          "with": "/",
+          "as": "srcPath"
+        },
+        {
+          "op": "set",
+          "value": "{playerOrigin}{srcPath}",
+          "as": "audioUrl"
+        },
+        {
+          "op": "hls_audio",
+          "from": "audioUrl",
+          "lang": "tr",
+          "as": "audioFinal"
+        }
+      ],
+      "result": "audioFinal"
+    },
+    {
+      "id": "hdfilmcehennemi2",
+      "enabled": true,
+      "audioDelayMs": 0,
+      "label": "Türkçe Dublaj · FilmC2",
+      "lang": "tr",
+      "base": "https://www.hdfilmcehennemi2.biz",
+      "domainKey": "HDFilmCehennemi2",
+      "headers": {
+        "Accept": "application/json"
+      },
+      "audioHeaders": {
+        "Origin": "{embedOrigin}",
+        "Referer": "{embedOrigin}/"
+      },
+      "movie": {
+        "stopOnImdbMatch": true,
+        "queries": [
+          "{title}",
+          "{title_tmdb}"
+        ]
+      },
+      "search": {
+        "url": "{base}/api/search?q={q}",
+        "maxCandidates": 3,
+        "pick": [
+          "\"slug\"\\s*:\\s*\"([^\"]+)\"[^{}]*?\"contentableType\"\\s*:\\s*\"[^\"]*Movie\""
+        ]
+      },
+      "steps": [
+        {
+          "op": "set",
+          "value": "{page}/",
+          "as": "pageUrl"
+        },
+        {
+          "op": "http_get",
+          "url": "{pageUrl}",
+          "referer": "{base}/",
+          "headers": {
+            "Accept": "text/html,application/xhtml+xml,*/*;q=0.8"
+          },
+          "as": "html"
+        },
+        {
+          "op": "check",
+          "from": "html",
+          "pattern": "imdb\\.com/title/(tt\\d+)",
+          "ignoreCase": true,
+          "expect": "imdb"
+        },
+        {
+          "op": "regex",
+          "from": "html",
+          "pattern": "videoPlayerData\\(JSON\\.parse\\('(.*?)'\\)",
+          "group": 1,
+          "as": "rawData",
+          "dotAll": true
+        },
+        {
+          "op": "replace",
+          "from": "rawData",
+          "pattern": "\\\\u0022",
+          "with": "\"",
+          "as": "vpd"
+        },
+        {
+          "op": "regex",
+          "from": "vpd",
+          "pattern": "\"link\"\\s*:\\s*\"([^\"]+)\"\\s*,\\s*\"service_slug\"\\s*:\\s*\"vip\"",
+          "group": 1,
+          "as": "vipLink"
+        },
+        {
+          "op": "set",
+          "value": "https://vidload.top/player/{vipLink}",
+          "as": "embedUrl"
+        },
+        {
+          "op": "set",
+          "value": "https://vidload.top",
+          "as": "embedOrigin"
+        },
+        {
+          "op": "http_get",
+          "url": "{embedUrl}",
+          "referer": "{pageUrl}",
+          "headers": {
+            "Accept": "text/html,application/xhtml+xml,*/*;q=0.8",
+            "Sec-Fetch-Dest": "iframe",
+            "Sec-Fetch-Mode": "navigate",
+            "Sec-Fetch-Site": "cross-site"
+          },
+          "as": "embedHtml"
+        },
+        {
+          "op": "regex",
+          "from": "embedHtml",
+          "pattern": "JSON\\.parse\\('([^']+)'\\)",
+          "group": 1,
+          "as": "embedRaw"
+        },
+        {
+          "op": "replace",
+          "from": "embedRaw",
+          "pattern": "\\\\u0022",
+          "with": "\"",
+          "as": "e1"
+        },
+        {
+          "op": "replace",
+          "from": "e1",
+          "pattern": "\\\\u0026",
+          "with": "&",
+          "as": "e2"
+        },
+        {
+          "op": "replace",
+          "from": "e2",
+          "pattern": "\\\\+/",
+          "with": "/",
+          "as": "embedJson"
+        },
+        {
+          "op": "regex",
+          "from": "embedJson",
+          "pattern": "\"file\"\\s*:\\s*\"(https?://[^\"]+?\\.m3u8[^\"]*)\"",
+          "group": 1,
+          "as": "masterUrl"
+        },
+        {
+          "op": "hls_audio",
+          "from": "masterUrl",
+          "lang": "tr",
+          "as": "audioFinal"
+        }
+      ],
+      "result": "audioFinal"
+    },
+    {
+      "id": "hdfilmcehennemi2-dizi",
+      "enabled": true,
+      "audioDelayMs": 0,
+      "label": "Türkçe Dublaj · FilmC2",
+      "lang": "tr",
+      "base": "https://www.hdfilmcehennemi2.biz",
+      "domainKey": "HDFilmCehennemi2",
+      "headers": {
+        "Accept": "application/json"
+      },
+      "audioHeaders": {
+        "Origin": "{embedOrigin}",
+        "Referer": "{embedOrigin}/"
+      },
+      "search": {
+        "url": "{base}/api/search?q={q}",
+        "maxCandidates": 3,
+        "pick": [
+          "\"slug\"\\s*:\\s*\"([^\"]+)\"[^{}]*?\"contentableType\"\\s*:\\s*\"[^\"]*Series\""
+        ]
+      },
+      "steps": [
+        {
+          "op": "set",
+          "value": "{page}",
+          "as": "seriesUrl"
+        },
+        {
+          "op": "http_get",
+          "url": "{seriesUrl}/",
+          "referer": "{base}/",
+          "headers": {
+            "Accept": "text/html,application/xhtml+xml,*/*;q=0.8"
+          },
+          "as": "seriesHtml"
+        },
+        {
+          "op": "check",
+          "from": "seriesHtml",
+          "pattern": "imdb\\.com/title/(tt\\d+)",
+          "ignoreCase": true,
+          "expect": "imdb"
+        },
+        {
+          "op": "regex",
+          "from": "seriesHtml",
+          "pattern": "href=\"(https://[^\"/]+/dizi/[^\"]+/sezon-{season}/bolum-{episode})(?![0-9])[^\"]*\"",
+          "group": 1,
+          "as": "pageUrl"
+        },
+        {
+          "op": "http_get",
+          "url": "{pageUrl}",
+          "referer": "{seriesUrl}/",
+          "headers": {
+            "Accept": "text/html,application/xhtml+xml,*/*;q=0.8"
+          },
+          "as": "html"
+        },
+        {
+          "op": "regex",
+          "from": "html",
+          "pattern": "videoPlayerData\\(JSON\\.parse\\('(.*?)'\\)",
+          "group": 1,
+          "as": "rawData",
+          "dotAll": true
+        },
+        {
+          "op": "replace",
+          "from": "rawData",
+          "pattern": "\\\\u0022",
+          "with": "\"",
+          "as": "vpd"
+        },
+        {
+          "op": "regex",
+          "from": "vpd",
+          "pattern": "\"link\"\\s*:\\s*\"([^\"]+)\"\\s*,\\s*\"service_slug\"\\s*:\\s*\"vip\"",
+          "group": 1,
+          "as": "vipLink"
+        },
+        {
+          "op": "set",
+          "value": "https://vidload.top/player/{vipLink}",
+          "as": "embedUrl"
+        },
+        {
+          "op": "set",
+          "value": "https://vidload.top",
+          "as": "embedOrigin"
+        },
+        {
+          "op": "http_get",
+          "url": "{embedUrl}",
+          "referer": "{pageUrl}",
+          "headers": {
+            "Accept": "text/html,application/xhtml+xml,*/*;q=0.8",
+            "Sec-Fetch-Dest": "iframe",
+            "Sec-Fetch-Mode": "navigate",
+            "Sec-Fetch-Site": "cross-site"
+          },
+          "as": "embedHtml"
+        },
+        {
+          "op": "regex",
+          "from": "embedHtml",
+          "pattern": "JSON\\.parse\\('([^']+)'\\)",
+          "group": 1,
+          "as": "embedRaw"
+        },
+        {
+          "op": "replace",
+          "from": "embedRaw",
+          "pattern": "\\\\u0022",
+          "with": "\"",
+          "as": "e1"
+        },
+        {
+          "op": "replace",
+          "from": "e1",
+          "pattern": "\\\\u0026",
+          "with": "&",
+          "as": "e2"
+        },
+        {
+          "op": "replace",
+          "from": "e2",
+          "pattern": "\\\\+/",
+          "with": "/",
+          "as": "embedJson"
+        },
+        {
+          "op": "regex",
+          "from": "embedJson",
+          "pattern": "\"file\"\\s*:\\s*\"(https?://[^\"]+?\\.m3u8[^\"]*)\"",
+          "group": 1,
+          "as": "masterUrl"
+        },
+        {
+          "op": "hls_audio",
+          "from": "masterUrl",
+          "lang": "tr",
+          "as": "audioFinal"
+        }
+      ],
+      "result": "audioFinal",
+      "series": {
+        "stopOnImdbMatch": true,
+        "queries": [
+          "{title}",
+          "{title_tmdb}"
+        ]
+      }
     }
   ]
 }
